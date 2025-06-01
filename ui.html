@@ -1,18 +1,91 @@
 <!DOCTYPE html>
 <html>
   <body>
-    <h3>Select a Scheme:</h3>
-    <button onclick="applyScheme()">Apply Dark Mode</button>
+    <label>Select Brand Theme:</label>
+    <select id="themeSelect">
+      <option>🔴 Shop</option>
+      <option>🔴 Shop New</option>
+      <option>🔵 Commercial</option>
+      <option>🟣 Plus</option>
+      <option>🟣 AI</option>
+      <option>🟢 Gold</option>
+      <option>🟢 Fresh</option>
+      <option>🔵 Pharmacy</option>
+      <option>🟠 Jet</option>
+      <option>🟤 Fidibo</option>
+      <option>🔵 Digipay</option>
+      <option>🟢 Mehr</option>
+      <option>⚫ Magnet</option>
+    </select>
+
     <script>
-      function applyScheme() {
-        parent.postMessage({ pluginMessage: {
-          type: 'apply-scheme',
-          scheme: {
-            "Theme": "Dark",
-            "Typography": "Large"
-          }
-        } }, '*');
-      }
+      const mapping = {
+        "🔴 Shop": [
+          { collectionId: "55:62", modeId: "55:2" }
+        ],
+        "🔴 Shop New": [
+          { collectionId: "55:62", modeId: "2949:0" },
+          { collectionId: "2949:3076", modeId: "2949:4" },
+          { collectionId: "2949:3103", modeId: "2949:7" },
+          { collectionId: "6794:10741", modeId: "12920:0" }
+        ],
+        "🔵 Commercial": [
+          { collectionId: "55:62", modeId: "2692:0" }
+        ],
+        "🟣 Plus": [
+          { collectionId: "55:62", modeId: "2040:0" }
+        ],
+        "🟣 AI": [
+          { collectionId: "55:62", modeId: "2949:0" },
+          { collectionId: "2949:3076", modeId: "2949:1" }
+        ],
+        "🟢 Gold": [
+          { collectionId: "55:62", modeId: "2949:0" },
+          { collectionId: "2949:3076", modeId: "2949:2" }
+        ],
+        "🟢 Fresh": [
+          { collectionId: "55:62", modeId: "2949:0" },
+          { collectionId: "2949:3076", modeId: "2949:3" }
+        ],
+        "🔵 Pharmacy": [
+          { collectionId: "55:62", modeId: "2949:0" },
+          { collectionId: "2949:3076", modeId: "2949:4" },
+          { collectionId: "2949:3103", modeId: "2949:5" }
+        ],
+        "🟠 Jet": [
+          { collectionId: "55:62", modeId: "2949:0" },
+          { collectionId: "2949:3076", modeId: "2949:4" },
+          { collectionId: "2949:3103", modeId: "2949:6" }
+        ],
+        "🟤 Fidibo": [
+          { collectionId: "55:62", modeId: "2949:0" },
+          { collectionId: "2949:3076", modeId: "2949:4" },
+          { collectionId: "2949:3103", modeId: "5081:0" }
+        ],
+        "🔵 Digipay": [
+          { collectionId: "55:62", modeId: "2949:0" },
+          { collectionId: "2949:3076", modeId: "2949:4" },
+          { collectionId: "2949:3103", modeId: "2949:7" },
+          { collectionId: "6794:10741", modeId: "6794:6" }
+        ],
+        "🟢 Mehr": [
+          { collectionId: "55:62", modeId: "2949:0" },
+          { collectionId: "2949:3076", modeId: "2949:4" },
+          { collectionId: "2949:3103", modeId: "2949:7" },
+          { collectionId: "6794:10741", modeId: "6794:5" }
+        ],
+        "⚫ Magnet": [
+          { collectionId: "55:62", modeId: "2949:0" },
+          { collectionId: "2949:3076", modeId: "2949:4" },
+          { collectionId: "2949:3103", modeId: "2949:7" },
+          { collectionId: "6794:10741", modeId: "6794:7" }
+        ]
+      };
+
+      document.getElementById("themeSelect").addEventListener("change", (e) => {
+        const chain = mapping[e.target.value];
+        parent.postMessage({ pluginMessage: { type: 'apply-theme-chain', chain } }, '*');
+      });
     </script>
   </body>
 </html>

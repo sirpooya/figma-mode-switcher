@@ -1,8 +1,8 @@
 {
   "name": "Variable Mode Switcher",
   "id": "your-plugin-id",
+  "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
-  "editorType": ["figma"],
-  "permissions": ["currentpage", "variables", "activeusers"]
+  "editorType": ["figma"]
 }
