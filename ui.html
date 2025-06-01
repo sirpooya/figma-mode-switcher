@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h3>Select a Scheme:</h3>
+    <button onclick="applyScheme()">Apply Dark Mode</button>
+    <script>
+      function applyScheme() {
+        parent.postMessage({ pluginMessage: {
+          type: 'apply-scheme',
+          scheme: {
+            "Theme": "Dark",
+            "Typography": "Large"
+          }
+        } }, '*');
+      }
+    </script>
+  </body>
+</html>
