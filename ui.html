@@ -284,7 +284,7 @@
     </div>
     
     <div class="buttons">
-      <button class="button button-secondary" id="clean">Clean</button>
+      <button class="button button-secondary" id="reset">Reset</button>
       <button class="button button-primary" id="apply-mode" disabled>Apply</button>
     </div>
     
@@ -300,7 +300,7 @@
     var selectedContent = document.getElementById('selected-content');
     var searchInput = document.getElementById('search-input');
     var searchArrow = document.getElementById('search-arrow');
-    var cleanButton = document.getElementById('clean');
+    var resetButton = document.getElementById('reset');
     var applyButton = document.getElementById('apply-mode');
     var applyButton = document.getElementById('apply-mode');
     var statusDiv = document.getElementById('status');
@@ -524,13 +524,13 @@
       }, '*');
     });
     
-    cleanButton.addEventListener('click', function() {
-      cleanButton.disabled = true;
-      cleanButton.textContent = 'Cleaning...';
+    resetButton.addEventListener('click', function() {
+      resetButton.disabled = true;
+      resetButton.textContent = 'Resetting...';
       
       parent.postMessage({ 
         pluginMessage: { 
-          type: 'clean-variable-modes'
+          type: 'reset-variable-modes'
         } 
       }, '*');
     });
@@ -551,15 +551,15 @@
       } else if (msg.type === 'success') {
         applyButton.disabled = false;
         applyButton.textContent = 'Apply';
-        cleanButton.disabled = false;
-        cleanButton.textContent = 'Clean';
+        resetButton.disabled = false;
+        resetButton.textContent = 'Reset';
         updateApplyButton();
       } else if (msg.type === 'error') {
         showStatus(msg.message, 'error');
         applyButton.disabled = false;
         applyButton.textContent = 'Apply';
-        cleanButton.disabled = false;
-        cleanButton.textContent = 'Clean';
+        resetButton.disabled = false;
+        resetButton.textContent = 'Reset';
         updateApplyButton();
       }
     });

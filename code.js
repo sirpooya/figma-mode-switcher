@@ -102,7 +102,7 @@ figma.ui.onmessage = async (msg) => {
     }
   }
   
-  if (msg.type === 'clean-variable-modes') {
+  if (msg.type === 'reset-variable-modes') {
     try {
       const currentPage = figma.currentPage;
       const selection = figma.currentPage.selection;
@@ -113,56 +113,32 @@ figma.ui.onmessage = async (msg) => {
       let clearedCount = 0;
       
       if (selection.length > 0) {
-        // Clear modes from selected nodes
-        console.log("Cleaning selected nodes...");
+        // Reset modes on selected nodes to default
+        console.log("Resetting selected nodes to default modes...");
         for (const node of selection) {
-          console.log(`Cleaning node: ${node.name}`);
+          console.log(`Processing node: ${node.name}`);
           
           // Check if node has explicitVariableModes property
           if (node.explicitVariableModes) {
             console.log(`Node ${node.name} has explicit modes:`, node.explicitVariableModes);
             
-            // Try to clear explicitVariableModes by setting it to empty object
-            try {
-              // This is a direct approach - set explicitVariableModes to empty
-              (node as any).explicitVariableModes = {};
-              clearedCount++;
-              console.log(`Cleared all explicit variable modes from ${node.name}`);
-            } catch (error) {
-              console.log(`Direct clearing failed for ${node.name}: ${error.message}`);
-              
-              // Fallback: try to set each collection to null or undefined
-              for (const collectionId in node.explicitVariableModes) {
-                try {
-                  // Try different approaches to remove the mode
-                  console.log(`Attempting to clear collection ID: ${collectionId}`);
-                  
-                  // Method 1: Try to set to null
-                  (node as any).setExplicitVariableModeForCollection(collectionId, null);
-                  console.log(`Method 1 worked: set to null for ${collectionId}`);
+            // Loop through all explicit variable modes on this node
+            for (const collectionId in node.explicitVariableModes) {
+              try {
+                console.log(`Resetting collection ID: ${collectionId}`);
+                
+                // Get the collection to find the default mode
+                const collection = await figma.variables.getVariableCollectionByIdAsync(collectionId);
+                if (collection && collection.modes.length > 0) {
+                  // Set to the first (default) mode
+                  node.setExplicitVariableModeForCollection(collection, collection.modes[0].modeId);
                   clearedCount++;
-                } catch (nullError) {
-                  console.log(`Method 1 failed (null): ${nullError.message}`);
-                  
-                  try {
-                    // Method 2: Try to set to undefined
-                    (node as any).setExplicitVariableModeForCollection(collectionId, undefined);
-                    console.log(`Method 2 worked: set to undefined for ${collectionId}`);
-                    clearedCount++;
-                  } catch (undefinedError) {
-                    console.log(`Method 2 failed (undefined): ${undefinedError.message}`);
-                    
-                    try {
-                      // Method 3: Try to delete the property
-                      delete (node as any).explicitVariableModes[collectionId];
-                      console.log(`Method 3 worked: deleted property for ${collectionId}`);
-                      clearedCount++;
-                    } catch (deleteError) {
-                      console.log(`Method 3 failed (delete): ${deleteError.message}`);
-                      console.log(`All methods failed for collection ${collectionId}`);
-                    }
-                  }
+                  console.log(`Reset collection ${collection.name} to default mode for ${node.name}`);
+                } else {
+                  console.log(`Could not get collection for ID: ${collectionId}`);
                 }
+              } catch (error) {
+                console.log(`Failed to reset collection ${collectionId} for ${node.name}: ${error.message}`);
               }
             }
           } else {
@@ -170,40 +146,35 @@ figma.ui.onmessage = async (msg) => {
           }
         }
         
-        figma.notify(`✅ Cleared ${clearedCount} variable mode assignments from ${selection.length} selected node(s)`);
+        figma.notify(`✅ Reset ${clearedCount} variable modes to default for ${selection.length} selected node(s)`);
       } else {
-        // Try to clear modes from page level
-        console.log("Attempting to clear page level modes...");
+        // Reset modes on page level to default
+        console.log("Resetting page level modes to default...");
         
-        try {
-          // Direct approach for page
-          (currentPage as any).explicitVariableModes = {};
-          clearedCount++;
-          console.log(`Cleared all explicit variable modes from page`);
-        } catch (error) {
-          console.log(`Direct page clearing failed: ${error.message}`);
-          
-          // Check if page has any explicit modes to clear
-          if ((currentPage as any).explicitVariableModes) {
-            console.log("Page has explicit modes:", (currentPage as any).explicitVariableModes);
+        // Work with the theme collections we know about
+        const themeCollectionNames = ['🌈 Theme', '🌈 Theme 2', '🌈 Theme 3', '🌈 Theme 4'];
+        
+        for (const themeCollectionName of themeCollectionNames) {
+          try {
+            const themeCollection = collectionsData.find(c => c.name === themeCollectionName);
+            if (!themeCollection) continue;
             
-            for (const collectionId in (currentPage as any).explicitVariableModes) {
-              try {
-                (currentPage as any).setExplicitVariableModeForCollection(collectionId, null);
-                clearedCount++;
-              } catch (e) {
-                console.log(`Failed to clear page mode for ${collectionId}: ${e.message}`);
-              }
-            }
-          } else {
-            console.log("Page has no explicit variable modes to clear");
+            const collection = await figma.variables.getVariableCollectionByIdAsync(themeCollection.id);
+            if (!collection || collection.modes.length === 0) continue;
+            
+            // Reset to the first (default) mode
+            currentPage.setExplicitVariableModeForCollection(collection, collection.modes[0].modeId);
+            clearedCount++;
+            console.log(`Reset ${themeCollectionName} to default mode for page`);
+          } catch (error) {
+            console.log(`Failed to reset ${themeCollectionName} for page: ${error.message}`);
           }
         }
         
-        figma.notify(`✅ Cleared ${clearedCount} variable mode assignments from page`);
+        figma.notify(`✅ Reset ${clearedCount} variable modes to default for page`);
       }
       
-      console.log(`Total cleared: ${clearedCount}`);
+      console.log(`Total reset to default: ${clearedCount}`);
       
       figma.ui.postMessage({
         type: 'success',
@@ -212,12 +183,12 @@ figma.ui.onmessage = async (msg) => {
       
     } catch (error) {
       console.log("Clean operation error:", error);
-      figma.notify(`❌ Error cleaning modes: ${error.message}`, { error: true });
+      figma.notify(`❌ Error resetting modes: ${error.message}`, { error: true });
       figma.ui.postMessage({
         type: 'error',
         message: `Error: ${error.message}`
       });
-      console.error("Error cleaning modes:", error);
+      console.error("Error resetting modes:", error);
     }
   }
 };
