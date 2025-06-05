@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Theme Mode Switcher</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      font-size: 12px;
+      line-height: 1.4;
+      overflow: visible;
+    }
+    
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-height: 300px;
+      padding: 16px;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #666666;
+      font-size: 11px;
+    }
+    
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .mode-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .mode-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #333333;
+      margin-bottom: 2px;
+    }
+    
+    .custom-dropdown {
+      position: relative;
+      width: 100%;
+    }
+    
+    .dropdown-button {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #d0d0d0;
+      border-radius: 6px;
+      background: white;
+      font-size: 11px;
+      color: #333333;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-align: left;
+      min-height: 40px;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #0066cc;
+      border-radius: 6px;
+      background: white;
+      font-size: 11px;
+      color: #333333;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+    }
+    
+    .dropdown-button:hover {
+      border-color: #0066cc;
+    }
+    
+    .dropdown-button:focus {
+      outline: none;
+      border-color: #0066cc;
+      box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+    }
+    
+    .dropdown-arrow {
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 4px solid #666;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+    
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #d0d0d0;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10000;
+      display: none;
+    }
+    
+    .dropdown-menu.show {
+      display: block;
+    }
+    
+    .dropdown-item {
+      padding: 8px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+    
+    .dropdown-item:hover,
+    .dropdown-item.highlighted {
+      background: #f5f5f5;
+    }
+    
+    .dropdown-item-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    
+    .dropdown-item-text {
+      flex: 1;
+    }
+    
+    .dropdown-selected-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .dropdown-selected-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    
+    .buttons {
+      display: flex;
+      gap: 8px;
+      padding-top: 4px;
+      margin-top: auto;
+    }
+    
+    .button {
+      flex: 1;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .button-primary {
+      background: #0066cc;
+      color: white;
+    }
+    
+    .button-primary:hover {
+      background: #0052a3;
+    }
+    
+    .button-primary:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+    
+    .button-secondary {
+      background: #ffffff;
+      color: #666666;
+      border: 1px solid #e0e0e0;
+    }
+    
+    .button-secondary:hover {
+      background: #f5f5f5;
+    }
+    
+    .status {
+      margin-top: 8px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      text-align: center;
+      display: none;
+    }
+    
+    .status.success {
+      background: #e8f5e8;
+      color: #2d5a2d;
+      border: 1px solid #c3e6c3;
+    }
+    
+    .status.error {
+      background: #fee;
+      color: #c33;
+      border: 1px solid #fcc;
+    }
+    
+    .no-collections {
+      text-align: center;
+      padding: 20px;
+      color: #666666;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="loading" class="loading">
+      <div>🔄 Loading variable collections...</div>
+    </div>
+    
+    <div id="content" class="content" style="display: none;">
+      <div class="mode-selector">
+        <label class="mode-label">Select Theme Mode:</label>
+        <div class="custom-dropdown">
+          <button class="dropdown-button" id="dropdown-button">
+            <div class="dropdown-selected-content" id="selected-content">
+              <span>Choose a theme mode...</span>
+            </div>
+            <div class="dropdown-arrow"></div>
+          </button>
+          <input class="search-input" id="search-input" placeholder="Type to search..." style="display: none;">
+          <div class="dropdown-menu" id="dropdown-menu">
+            <!-- Options will be populated here -->
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="no-collections" class="no-collections" style="display: none;">
+      <div>No global variable collections found.</div>
+    </div>
+    
+    <div class="buttons">
+      <button class="button button-secondary" id="cancel">Cancel</button>
+      <button class="button button-primary" id="apply-mode" disabled>Apply</button>
+    </div>
+    
+    <div id="status" class="status"></div>
+  </div>
+
+  <script>
+    // This script content will be replaced by Webpack with the compiled ui.ts
+    // Webpack will bundle ui.ts (which imports config.ts) into this script tag
+    console.log('Webpack should replace this with bundled TypeScript code');
+  </script>
+    
+    function initializeDropdown() {
+      allOptions = [
+        'Shop', 'Shop New', 'Commercial', 'Plus', 'AI', 'Gold',
+        'Fresh', 'Pharmacy', 'Jet', 'Fidibo', 'Digipay', 'Mehr', 'Magnet'
+      ];
+      
+      filteredOptions = allOptions.slice();
+      renderDropdownItems();
+    }
+    
+    function renderDropdownItems() {
+      dropdownMenu.innerHTML = '';
+      
+      for (var i = 0; i < filteredOptions.length; i++) {
+        var option = filteredOptions[i];
+        var item = document.createElement('div');
+        item.className = 'dropdown-item';
+        if (i === highlightedIndex) {
+          item.className += ' highlighted';
+        } else if (msg.type === 'config-error') {
+        showStatus(msg.message, 'error');
+      }
+        item.setAttribute('data-value', option);
+        
+        var icon = logoConfigData[option] ? 
+          '<img src="' + logoConfigData[option] + '" class="dropdown-item-icon" alt="' + option + '" onerror="console.log(\'Image failed to load: ' + option + '\')">' : 
+          '<div class="dropdown-item-icon" style="width: 24px; height: 24px; background: #ddd; border-radius: 2px;"></div>';
+        
+        item.innerHTML = icon + '<span class="dropdown-item-text">' + option + '</span>';
+        
+        item.addEventListener('click', function(opt) {
+          return function() {
+            selectOption(opt, logoConfigData[opt]);
+          };
+        }(option));
+        
+        dropdownMenu.appendChild(item);
+      }
+      
+      positionDropdownMenu();
+    }
+    
+    function positionDropdownMenu() {
+      // No longer needed since using position: absolute
+    }
+    
+    function filterOptions(searchTerm) {
+      var term = searchTerm.toLowerCase();
+      filteredOptions = [];
+      for (var i = 0; i < allOptions.length; i++) {
+        if (allOptions[i].toLowerCase().indexOf(term) !== -1) {
+          filteredOptions.push(allOptions[i]);
+        }
+      }
+      highlightedIndex = filteredOptions.length > 0 ? 0 : -1;
+      renderDropdownItems();
+    }
+    
+    function selectOption(value, iconPath) {
+      selectedMode = value;
+      
+      var actualIconPath = iconPath || logoConfigData[value];
+      var icon = actualIconPath ? 
+        '<img src="' + actualIconPath + '" class="dropdown-selected-icon" alt="' + value + '" onerror="console.log(\'Selected image failed to load: ' + value + '\')">' : 
+        '<div class="dropdown-selected-icon" style="width: 24px; height: 24px; background: #ddd; border-radius: 2px;"></div>';
+      
+      selectedContent.innerHTML = icon + '<span>' + value + '</span>';
+      
+      closeDropdown();
+      updateApplyButton();
+    }
+    
+    function openDropdown() {
+      isSearchMode = true;
+      dropdownButton.style.display = 'none';
+      searchInput.style.display = 'block';
+      searchInput.focus();
+      searchInput.value = '';
+      filteredOptions = allOptions.slice();
+      highlightedIndex = -1;
+      renderDropdownItems();
+      dropdownMenu.classList.add('show');
+    }
+    
+    function closeDropdown() {
+      isSearchMode = false;
+      dropdownButton.style.display = 'block';
+      searchInput.style.display = 'none';
+      dropdownMenu.classList.remove('show');
+      highlightedIndex = -1;
+    }
+    
+    function selectHighlightedItem() {
+      if (highlightedIndex >= 0 && highlightedIndex < filteredOptions.length) {
+        var option = filteredOptions[highlightedIndex];
+        selectOption(option, logoConfigData[option]);
+      }
+    }
+    
+    function showStatus(message, type) {
+      statusDiv.textContent = message;
+      statusDiv.className = 'status ' + type;
+      statusDiv.style.display = 'block';
+      
+      if (type === 'success') {
+        setTimeout(function() {
+          statusDiv.style.display = 'none';
+        }, 3000);
+      }
+    }
+    
+    function updateApplyButton() {
+      if (selectedMode) {
+        applyButton.disabled = false;
+      } else {
+        applyButton.disabled = true;
+      }
+    }
+    
+    function showContent() {
+      loadingDiv.style.display = 'none';
+      contentDiv.style.display = 'block';
+    }
+    
+    dropdownButton.addEventListener('click', function(e) {
+      e.stopPropagation();
+      openDropdown();
+    });
+    
+    searchInput.addEventListener('input', function(e) {
+      filterOptions(e.target.value);
+    });
+    
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        highlightedIndex = Math.min(highlightedIndex + 1, filteredOptions.length - 1);
+        renderDropdownItems();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        highlightedIndex = Math.max(highlightedIndex - 1, 0);
+        renderDropdownItems();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        selectHighlightedItem();
+      } else if (e.key === 'Escape') {
+        closeDropdown();
+      }
+    });
+    
+    searchInput.addEventListener('blur', function() {
+      setTimeout(function() {
+        var isHoveringMenu = dropdownMenu.matches(':hover');
+        if (!isHoveringMenu) {
+          closeDropdown();
+        }
+      }, 150);
+    });
+    
+    document.addEventListener('click', function(e) {
+      var isClickInsideDropdown = false;
+      var element = e.target;
+      while (element) {
+        if (element.classList && element.classList.contains('custom-dropdown')) {
+          isClickInsideDropdown = true;
+          break;
+        }
+        element = element.parentElement;
+      }
+      if (!isClickInsideDropdown) {
+        closeDropdown();
+      }
+    });
+    
+    applyButton.addEventListener('click', function() {
+      if (!selectedMode) return;
+      
+      applyButton.disabled = true;
+      applyButton.textContent = 'Applying...';
+      
+      parent.postMessage({ 
+        pluginMessage: { 
+          type: 'apply-theme-mode',
+          data: {
+            selectedMode: selectedMode
+          }
+        } 
+      }, '*');
+    });
+    
+    cancelButton.addEventListener('click', function() {
+      parent.postMessage({ 
+        pluginMessage: { type: 'cancel' } 
+      }, '*');
+    });
+    
+    window.addEventListener('message', function(event) {
+      var msg = event.data.pluginMessage;
+      
+      console.log('UI received message:', msg.type, msg.data);
+      
+      if (msg.type === 'collections-loaded') {
+        console.log('Collections data:', msg.data);
+        if (msg.data.length > 0) {
+          showContent();
+        } else {
+          loadingDiv.style.display = 'none';
+          noCollectionsDiv.style.display = 'block';
+        }
+      } else if (msg.type === 'success') {
+        applyButton.disabled = false;
+        applyButton.textContent = 'Apply';
+        updateApplyButton();
+      } else if (msg.type === 'error') {
+        showStatus(msg.message, 'error');
+        applyButton.disabled = false;
+        applyButton.textContent = 'Apply';
+        updateApplyButton();
+      }
+    });
+    
+    loadLogoConfig();
+  </script>
+</body>
+</html>
