@@ -2,8 +2,8 @@
   "name": "variable-mode-switcher",
   "id": "your-plugin-id",
   "api": "1.0.0",
-  "main": "dist/code.js",
-  "ui": "dist/ui.html",
+  "main": "code.js",
+  "ui": "ui.html",
   "permissions": ["teamlibrary"],
   "editorType": ["figma"]
 }
