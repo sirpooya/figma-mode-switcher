@@ -7,12 +7,12 @@ let collectionsData = [];
 figma.ui.onmessage = async (msg) => {
   if (msg.type === 'apply-theme-mode') {
     try {
-      const { selectedMode } = msg.data;
+      const selectedMode = (msg.data.overrideVariable && msg.data.overrideVariable.value) || msg.data.selectedMode;
       
       console.log(`Looking for mode "${selectedMode}" in theme collections`);
       
-      // Find theme collections (🌈 Theme, 🌈 Theme 2, 🌈 Theme 3, 🌈 Theme 4)
-      const themeCollectionNames = ['🌈 Theme', '🌈 Theme 2', '🌈 Theme 3', '🌈 Theme 4'];
+      // Find theme collections (🌈 Theme, 🌈 Theme 2, 🌈 Theme 3, 🌈 Theme 4, 🌓 Mode, 💻 Device)
+      const themeCollectionNames = ['🌈 Theme', '🌈 Theme 2', '🌈 Theme 3', '🌈 Theme 4', '🌓 Mode', '💻 Device'];
       
       let applied = false;
       let appliedCollections = [];
@@ -152,7 +152,7 @@ figma.ui.onmessage = async (msg) => {
         console.log("Resetting page level modes to default...");
         
         // Work with the theme collections we know about
-        const themeCollectionNames = ['🌈 Theme', '🌈 Theme 2', '🌈 Theme 3', '🌈 Theme 4'];
+        const themeCollectionNames = ['🌈 Theme', '🌈 Theme 2', '🌈 Theme 3', '🌈 Theme 4', '🌓 Mode', '💻 Device'];
         
         for (const themeCollectionName of themeCollectionNames) {
           try {

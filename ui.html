@@ -36,17 +36,25 @@
     
     .content {
       flex: 1;
-      display: flex;
+      display: flex !important;
       flex-direction: column;
-      gap: 8px;
+      gap: 24px;
       margin-bottom: 8px;
     }
     
     .mode-selector {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
       gap: 4px;
     }
+
+    .mode-selector.vertical {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
     
     .mode-label {
       font-size: 11px;
@@ -261,6 +269,60 @@
       color: #888888;
       font-size: 9px;
     }
+
+    /* Toggle Switch Styles */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 34px;
+      height: 20px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.2s;
+      border-radius: 20px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.2s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #4CAF50;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(14px);
+    }
+
+    .slider.round {
+      border-radius: 20px;
+    }
+
+    .slider.round:before {
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>
@@ -270,7 +332,7 @@
     </div>
     
     <div id="content" class="content" style="display: none;">
-      <div class="mode-selector">
+      <div class="mode-selector vertical">
         <label class="mode-label">Select Theme:</label>
         <div class="custom-dropdown">
           <button class="dropdown-button" id="dropdown-button">
@@ -284,6 +346,20 @@
             <!-- Options will be populated here -->
           </div>
         </div>
+      </div>
+      <div class="mode-selector">
+        <label class="mode-label">Dark Mode:</label>
+        <label class="switch">
+          <input type="checkbox" id="dark-mode-toggle">
+          <span class="slider round"></span>
+        </label>
+      </div>
+      <div class="mode-selector">
+        <label class="mode-label">Desktop Ratio:</label>
+        <label class="switch">
+          <input type="checkbox" id="desktop-ratio-toggle">
+          <span class="slider round"></span>
+        </label>
       </div>
     </div>
     
@@ -576,6 +652,50 @@
     });
     
     loadLogoConfig();
+
+    // Dark mode toggle logic
+    var darkModeToggle = document.getElementById('dark-mode-toggle');
+
+    darkModeToggle.addEventListener('change', function () {
+      const modeValue = darkModeToggle.checked ? 'Dark' : 'Light';
+      applyButton.disabled = true;
+      applyButton.textContent = 'Applying...';
+
+      parent.postMessage({
+        pluginMessage: {
+          type: 'apply-theme-mode',
+          data: {
+            selectedMode: selectedMode,
+            overrideVariable: {
+              name: '🌓 Mode',
+              value: modeValue
+            }
+          }
+        }
+      }, '*');
+    });
+
+    // Desktop Ratio toggle logic
+    var desktopRatioToggle = document.getElementById('desktop-ratio-toggle');
+
+    desktopRatioToggle.addEventListener('change', function () {
+      const deviceValue = desktopRatioToggle.checked ? 'Desktop' : 'Mobile';
+      applyButton.disabled = true;
+      applyButton.textContent = 'Applying...';
+
+      parent.postMessage({
+        pluginMessage: {
+          type: 'apply-theme-mode',
+          data: {
+            selectedMode: selectedMode,
+            overrideVariable: {
+              name: '💻 Device',
+              value: deviceValue
+            }
+          }
+        }
+      }, '*');
+    });
   </script>
 </body>
 </html>
