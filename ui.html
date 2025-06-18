@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>DK Theme Switcher</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@create-figma-plugin/ui@1.27.0/dist/base.css" />
   <style>
     * {
       box-sizing: border-box;
@@ -12,7 +13,6 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       margin: 0;
       padding: 0;
-      background: #ffffff;
       font-size: 12px;
       line-height: 1.4;
       overflow: visible;
@@ -59,7 +59,7 @@
     .mode-label {
       font-size: 11px;
       font-weight: 500;
-      color: #333333;
+      color: var(--figma-color-text);
       margin-bottom: 2px;
     }
     
@@ -71,11 +71,11 @@
     .dropdown-button {
       width: 100%;
       padding: 8px 32px 8px 10px;
-      border: 1px solid #d0d0d0;
+      border: 1px solid var(--figma-color-border);
       border-radius: 6px;
-      background: white;
+      background: var(--figma-color-bg);
       font-size: 11px;
-      color: #333333;
+      color: var(--figma-color-text);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -87,11 +87,11 @@
     .search-input {
       width: 100%;
       padding: 8px 32px 8px 10px;
-      border: 1px solid #0066cc;
+      border: 1px solid var(--figma-color-border-selected-strong);
       border-radius: 6px;
-      background: white;
+      background: var(--figma-color-bg);
       font-size: 11px;
-      color: #333333;
+      color: var(--figma-color-text);
       outline: none;
       box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
       height: 40px;
@@ -107,7 +107,7 @@
       height: 0;
       border-left: 4px solid transparent;
       border-right: 4px solid transparent;
-      border-top: 4px solid #666;
+      border-top: 4px solid var(--figma-color-icon-secondary);
       pointer-events: none;
     }
     
@@ -212,8 +212,8 @@
     }
     
     .button-primary {
-      background: #202020;
-      color: white;
+      background: var(--figma-color-bg-inverse);
+      color: var(--figma-color-text-oninverse);
     }
     
     .button-primary:hover {
@@ -221,14 +221,14 @@
     }
     
     .button-primary:disabled {
-      background: #cccccc;
+      background: var(--figma-color-bg-disabled);
       cursor: not-allowed;
     }
     
     .button-secondary {
-      background: #ffffff;
-      color: #666666;
-      border: 1px solid #e0e0e0;
+      background: var(--figma-color-bg);
+      color: var(--figma-color-text);
+      border: 1px solid var(--figma-color-border);
     }
     
     .button-secondary:hover {
@@ -266,7 +266,7 @@
     .footer {
       text-align: center;
       padding: 8px 16px 4px 16px;
-      color: #888888;
+      color: var(--figma-color-text-disabled);
       font-size: 9px;
     }
 
@@ -291,7 +291,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: #ccc;
+      background-color: var(--figma-color-border-disabled);
       transition: 0.2s;
       border-radius: 20px;
     }
@@ -309,7 +309,7 @@
     }
 
     input:checked + .slider {
-      background-color: #4CAF50;
+      background-color: var(--figma-color-bg-selected-strong);
     }
 
     input:checked + .slider:before {
